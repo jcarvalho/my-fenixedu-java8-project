@@ -1,0 +1,12 @@
+package pt.jcarvalho.myproject;
+
+public class Counter {
+    public int value;
+}
+
+relation CounterRoot {
+    .pt.ist.fenixframework.DomainRoot playsRole root;
+    Counter playsRole counter {
+        multiplicity *;
+    }
+}
