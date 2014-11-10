@@ -1,30 +1,31 @@
 package pt.jcarvalho.myproject;
 
-import java.util.stream.IntStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.Atomic.TxMode;
 import pt.ist.fenixframework.FenixFramework;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        IntStream.range(0, 1000).parallel().forEach(i -> FenixFramework.atomic(() -> {
-            createCounter();
-        }));
+        ExecutorService service = Executors.newFixedThreadPool(4);
 
-        System.out.println("Created " + FenixFramework.atomic(() -> FenixFramework.getDomainRoot().getCounterSet().size()));
+        for (int i = 0; i < 4; i++) {
+            service.submit((Runnable) () -> {
+                while (true) {
+                    FenixFramework.atomic(() -> {
+                        for (int j = 0; j < 100; j++) {
+                        }
+                    });
+                }
+            });
+        }
 
-        FenixFramework
-                .atomic(() -> {
-                    FenixFramework.getDomainRoot().getCounterSet().stream().parallel()
-                            .forEach(i -> System.out.println("Counter : " + i));
-                });
+        service.shutdown();
+        service.awaitTermination(1, TimeUnit.DAYS);
+
     }
 
-    @Atomic(mode = TxMode.WRITE)
-    private static void createCounter() {
-        new Counter();
-    }
 }
